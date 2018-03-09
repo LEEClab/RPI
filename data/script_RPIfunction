@@ -1,0 +1,58 @@
+#Before running the function you must enter V and ek:
+#
+# Input parameters: (V, ek)
+# V		matrix n x m of presence (1) and absence (0) of each
+#		variable (k) in each location (l).
+#		n		total number of locations (l)
+#		l		each location (we use l instead of i in
+#				the function to avoid conflict with R 
+#				language)
+#		m		total number of variables (k)
+#		k		each landscape or road variable
+#		t		total number of taxa (j)
+#		j		each taxon
+# ek		dataframe with Eljk value for each location (l) x
+#		taxon (j) x variable (k).
+#		eg.
+#		local	taxa		var1		var2		var3
+#		l1		j1		E111		E112		E113
+#		l2		j1		E211		E212		E213
+#		l1		j2		E121		E122		E123
+#		l2		j2		E221		E222		E223
+#
+#		Eljk		represents the influence of each variable 
+#				(k) on each taxon (j) in a location (l).
+#				E value is assigned by experts as positive 
+#				(1), indifferent (0) or negative (-1).
+#				NA is used when variable is not present in 
+#				the location.
+
+
+
+RPI <- function(V, ek)
+{
+  m <- ncol(V)
+  t <- nlevels(as.factor(ek[,2]))
+
+  tx <- c(levels(ek[,2]))
+  wkj <- matrix(,m,t)
+ 
+ for(i in 1:t) {
+    wkj[,i] <- colMeans(ek[ek[,2]==tx[i],3:(m+2)],na.rm=T)
+                }
+ 
+  colnames(wkj)<-tx
+  rownames(wkj)<-colnames(ek[3:(m+2)])
+
+  Vm<-as.matrix(V)
+  P0<-Vm%*%wkj
+  P1<-P0/m
+
+  RPI_i <- rowMeans(P1) # calculating 
+
+  res <- list() # returning a list with RPI_i, RPI_ij, e w_kj
+res$RPI_i <- RPI_i
+  res$RPI_ij <- P1
+res$w_kj <- wkj
+  res
+}
