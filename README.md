@@ -33,4 +33,7 @@ This index can help identify potential location of road kill hotspots where no d
           $ w_kj: 	a matrix with the average E value for each variable (k) and taxon (j) considering the locations k where is present.
 
 
+This repository provides the R code and sample input for calculating thr Road Permeability Index. This files are supplementary material for the article:
+Assis JC, Giacominni H, Ribeiro MC (in preparation) Road Permeability Index: evaluating the heterogeneous permeability of roads for wildlife crossing.
+
 No rights are reserved anywhere in the world. Feel free to use, share, and modify.
