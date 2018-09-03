@@ -5,7 +5,7 @@ This function aims at calculating potential fauna crossing  at road positions by
 It is based on qualitative, reliable expert opinion integrated with landscape attributes and road structures. 
 This index can help identify potential location of road kill hotspots where no data are available. 
 
-    Input parameters: (V, ek)
+    Input parameters: (V, ek, es)
       V   matrix n x m of presence (1) and absence (0) of each variable (k) in each location (l).
 		    n   total number of locations (l)
 		    l		each location (we use l instead of i in the function to avoid conflict with R language)
@@ -26,14 +26,20 @@ This index can help identify potential location of road kill hotspots where no d
 		  Eljk  represents the influence of each variable (k) on each taxon (j) in a location (l).
               E value is assigned by experts as positive (1), indifferent (0) or negative (-1).
               NA is used when variable is not present in the location.
+	      
+	es  optional dataframe with expert weights (ε, numeric). Default is equal weights for all experts.
 
+    eg.
+		expert   weight
+		s1       ε1	
+		s2       ε2	
       Output: List of 3
           $ RPI_i: 	a vector with average value of RPI for all taxa	in each location.
-          $ RPI_ij: a matrix with RPI value for each taxon at each location.
-          $ w_kj: 	a matrix with the average E value for each variable (k) and taxon (j) considering the locations k where is present.
+          $ RPI_ij:	a matrix with RPI value for each taxon at each location.
+          $ w_kj: 	a matrix with the average E value for each variable (k) and taxon (j) considering the locations where k is present.			
 
 
 This repository provides the R code and sample input for calculating thr Road Permeability Index. This files are supplementary material for the article:
-Assis JC, Giacominni H, Ribeiro MC (in preparation) Road Permeability Index: evaluating the heterogeneous permeability of roads for wildlife crossing.
+Assis JC, Giacominni H, Ribeiro MC (under review) Road Permeability Index: evaluating the heterogeneous permeability of roads for wildlife crossing.
 
 No rights are reserved anywhere in the world. Feel free to use, share, and modify.
