@@ -1,6 +1,6 @@
 #Before running the function you must enter V and ek:
 #
-# Input parameters: (V, ek)
+# Input parameters: (V, ek, es)
 # V		matrix n x m of presence (1) and absence (0) of each
 #		variable (k) in each location (l).
 #		n		total number of locations (l)
@@ -11,6 +11,7 @@
 #		k		each landscape or road variable
 #		t		total number of taxa (j)
 #		j		each taxon
+#
 # ek		dataframe with Eljk value for each location (l) x
 #		taxon (j) x variable (k).
 #		eg.
@@ -20,39 +21,52 @@
 #		l1		j2		E121		E122		E123
 #		l2		j2		E221		E222		E223
 #
-#		Eljk		represents the influence of each variable 
-#				(k) on each taxon (j) in a location (l).
-#				E value is assigned by experts as positive 
+#es		optional dataframe with expert weights (ε, numeric). Default is #           equal weights for all experts
+#		eg.
+#		expert   weight
+#		s1       ε1	
+#		s2       ε2	
+#
+#		Eljks		represents the influence of each variable 
+#				(k) on each taxon (j) in a location (l), as 
+#				assigned by expert (s).
+#       E is assigned by experts as positive 
 #				(1), indifferent (0) or negative (-1).
 #				NA is used when variable is not present in 
 #				the location.
 
 
 
-RPI <- function(V, ek)
-{
+
+RPI <- function(V, ek, es) {
   m <- ncol(V)
-  t <- nlevels(as.factor(ek[,2]))
-
-  tx <- c(levels(ek[,2]))
-  wkj <- matrix(,m,t)
- 
- for(i in 1:t) {
-    wkj[,i] <- colMeans(ek[ek[,2]==tx[i],3:(m+2)],na.rm=T)
-                }
- 
+  t <- nlevels(as.factor(ek[,3]))
+  z <- nlevels(as.factor(ek[,1])) #number of experts
+  tx <- c(levels(as.factor(ek[,3])))
+  zx <- c(levels(as.factor(ek[,1])))
+  if (nargs()<3) { #if a matrix of expert weights is not provided
+    es<-data.frame(expert=zx)
+    es$weight<-1/z #attribute equal weights = 1/z
+  }
+  es[,2]<-es[,2]/sum(es[,2]) #ensures the sum of expert weights = 1
+  wkj <- matrix(0,m,t)
+  for(i in 1:t) {
+    zi<-nlevels(as.factor(ek[ek[,3]==tx[i],1])) #number of experts for taxon i
+    zxi <- c(levels(as.factor(ek[ek[,3]==tx[i],1]))) #experts for taxon i
+    for (s in 1:zi) {
+      wkj[,i] <- wkj[,i]+es[es[,1]==zxi[s],2]*colMeans(ek[ek[,3]==tx[i]&ek[,1]==zxi[s],4:(m+3)],na.rm=T)
+    }
+  }
   colnames(wkj)<-tx
-  rownames(wkj)<-colnames(ek[3:(m+2)])
-
+  rownames(wkj)<-colnames(ek[4:(m+3)])
   Vm<-as.matrix(V)
   P0<-Vm%*%wkj
   P1<-P0/m
-
   RPI_i <- rowMeans(P1) # calculating 
-
   res <- list() # returning a list with RPI_i, RPI_ij, e w_kj
-res$RPI_i <- RPI_i
+  res$RPI_i <- RPI_i
   res$RPI_ij <- P1
-res$w_kj <- wkj
+  res$w_kj <- wkj
   res
 }
+
